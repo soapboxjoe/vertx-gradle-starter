@@ -1,6 +1,7 @@
 plugins {
   id 'application'
   id 'com.github.johnrengelman.shadow' version '1.2.3'
+  id 'groovy'
 }
 
 repositories {
@@ -18,6 +19,7 @@ def doOnChange = './gradlew classes'
 
 dependencies {
   compile "io.vertx:vertx-core:$vertxVersion"
+  compile "io.vertx:vertx-lang-groovy:$vertxVersion"
   testCompile "junit:junit:4.12"
   testCompile "io.vertx:vertx-unit:$vertxVersion"
 }
@@ -33,7 +35,7 @@ shadowJar {
 }
 
 run {
-  args = ['run', mainVerticleName, "--redeploy=$watchForChange", "--launcher-class=$mainClassName", "--on-redeploy=$doOnChange"]
+  args = ['run', mainVerticleName, "--redeploy=$watchForChange", "--launcher-class=$mainClassName", "--on-redeploy=$doOnChange", "--conf='./conf/config.json'"]
 }
 
 task wrapper(type: Wrapper) {
