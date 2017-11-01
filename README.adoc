@@ -1,6 +1,6 @@
-= Vert.x Gradle Starter
+= Vert.x Gradle Groovy Starter
 
-This project is a template to start your own Vert.x project using Gradle.
+This project is a template to start your own Vert.x project using Gradle and Groovy.
 
 == Prerequisites
 
@@ -40,8 +40,8 @@ The command compiles the project and runs the tests, then  it launches the appli
 The project contains:
 
 * the Gradle project and its configuration (`build.gradle`)
-* a _main_ verticle file (src/main/java/io/vertx/starter/MainVerticle.java)
-* a unit test (src/main/test/io/vertx/starter/MainVerticleTest.java)
+* a _main_ verticle file (src/main/java/io/vertx/starter/MainVerticle.groovy)
+* a unit test (src/main/test/io/vertx/starter/MainVerticleTest.groovy)
 
 == Start to hack
 
