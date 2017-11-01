@@ -10,18 +10,22 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.net.ServerSocket
+import io.vertx.core.logging.LoggerFactory
 
 @RunWith(VertxUnitRunner.class)
 public class MainVerticleTest {
 
   private Vertx vertx
-  private int port = 8089
+  private int port
+  private logger = LoggerFactory.getLogger(MainVerticleTest)
 
   @Before
   public void setUp(TestContext tc) {
     vertx = Vertx.vertx()
-    def opts = new DeploymentOptions()
-          .setConfig(new JsonObject().put("http.port", port))
+    port = new ServerSocket(0).getLocalPort()
+    logger.info("Running on port $port")
+    def opts = new DeploymentOptions() .setConfig(new JsonObject().put("http.port", port))
     vertx.deployVerticle(MainVerticle.class.getName(), opts, tc.asyncAssertSuccess())
   }
 
