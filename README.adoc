@@ -33,8 +33,8 @@ The command compiles the project and runs the tests, then  it launches the appli
 The project contains:
 
 * the Gradle project and its configuration (`build.gradle`)
-* a _main_ verticle file (src/main/java/io/vertx/starter/MainVerticle.groovy)
-* a unit test (src/main/test/io/vertx/starter/MainVerticleTest.groovy)
+* a _main_ verticle file (src/main/groovy/io/vertx/starter/MainVerticle.groovy)
+* a unit test (src/main/test/groovy/io/vertx/starter/MainVerticleTest.groovy)
 
 == Start to hack
 
