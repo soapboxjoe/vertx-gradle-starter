@@ -14,14 +14,14 @@ import java.net.ServerSocket
 import io.vertx.core.logging.LoggerFactory
 
 @RunWith(VertxUnitRunner.class)
-public class MainVerticleTest {
+class MainVerticleTest {
 
   private Vertx vertx
   private int port
   private logger = LoggerFactory.getLogger(MainVerticleTest)
 
   @Before
-  public void setUp(TestContext tc) {
+  void setUp(TestContext tc) {
     vertx = Vertx.vertx()
     port = new ServerSocket(0).getLocalPort()
     logger.info("Running on port $port")
@@ -30,20 +30,19 @@ public class MainVerticleTest {
   }
 
   @After
-  public void tearDown(TestContext tc) {
+  void tearDown(TestContext tc) {
     vertx.close(tc.asyncAssertSuccess())
   }
 
   @Test
-  public void testThatTheServerIsStarted(TestContext tc) {
+  void testThatTheServerIsStarted(TestContext tc) {
     Async async = tc.async()
-    vertx.createHttpClient().getNow(port, "localhost", "/", { response -> 
+    vertx.createHttpClient().getNow(port, "localhost", "/", { response ->
       tc.assertEquals(response.statusCode(), 200)
-      response.bodyHandler({body -> 
+      response.bodyHandler({body ->
         tc.assertTrue(body.length() > 0)
         async.complete()
       })
     })
   }
-
 }

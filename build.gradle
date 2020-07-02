@@ -2,6 +2,7 @@ plugins {
   id 'application'
   id 'com.github.johnrengelman.shadow' version '1.2.3'
   id 'groovy'
+  id 'com.palantir.git-version' version '0.12.3'
 }
 
 repositories {
@@ -16,10 +17,13 @@ def vertxVersion = '3.4.2'
 def mainVerticleName = 'io.vertx.starter.MainVerticle'
 def watchForChange = 'src/**/*'
 def doOnChange = './gradlew classes'
+def gitBranchName = versionDetails().branchName
 
 dependencies {
   compile "io.vertx:vertx-core:$vertxVersion"
   compile "io.vertx:vertx-lang-groovy:$vertxVersion"
+  compile "io.vertx:vertx-config:$vertxVersion"
+  compile "io.vertx:vertx-config-redis:$vertxVersion"
   testCompile "junit:junit:4.12"
   testCompile "io.vertx:vertx-unit:$vertxVersion"
 }
@@ -34,8 +38,16 @@ shadowJar {
   }
 }
 
-run {
-  args = ['run', mainVerticleName, "--redeploy=$watchForChange", "--launcher-class=$mainClassName", "--on-redeploy=$doOnChange", "--conf='./conf/config.json'"]
+task getGit(){
+//  def details = versionDetails()
+//  String name = details.branchName //+ "_" + details.gitHash
+//  println name
+//  System.setProperty("gitBranchName", name)
+}
+
+run() {
+  dependsOn getGit
+  args = ['run', mainVerticleName, "--redeploy=$watchForChange", "--launcher-class=$mainClassName", "--on-redeploy=$doOnChange", "--conf='./conf/config.json'", "-DgitBranchName=${gitBranchName}"]
 }
 
 task wrapper(type: Wrapper) {

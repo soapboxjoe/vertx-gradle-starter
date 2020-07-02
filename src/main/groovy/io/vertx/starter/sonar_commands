@@ -1,0 +1,16 @@
+./gradlew clean sonarqube \
+  -Dsonar.projectKey=houdini \
+  -Dsonar.sources=. \
+  -Dsonar.tests=. \
+  -Dsonar.test.inclusions=**/*Test*/** \
+  -Dsonar.exclusions=**/*Test*/** \
+  -Dsonar.exclusions=**/*.js \
+  -Dsonar.host.url=http://localhost:9000 \
+  -Dsonar.login=b0d856954d346f15f38ff5e2c257c2592789c693
+
+  sonarqube {
+    properties {
+        property "sonar.exclusions", "**/*Test*/**"
+		property "sonar.exclusions", "**/*.js"
+    }
+}

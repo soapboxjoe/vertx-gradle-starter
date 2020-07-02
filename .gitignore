@@ -2,6 +2,7 @@
 build/
 bin/
 .settings
+.idea
 
 # Ignore VertX file cache
 .vertx/
