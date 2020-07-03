@@ -17,7 +17,7 @@ def vertxVersion = '3.4.2'
 def mainVerticleName = 'io.vertx.starter.MainVerticle'
 def watchForChange = 'src/**/*'
 def doOnChange = './gradlew classes'
-def gitBranchName = versionDetails().branchName
+def gitBranch = versionDetails().branchName
 
 dependencies {
   compile "io.vertx:vertx-core:$vertxVersion"
@@ -31,23 +31,18 @@ dependencies {
 shadowJar {
   classifier = 'fat'
   manifest {
+      attributes "Main-Class": mainClassName
       attributes "Main-Verticle": mainVerticleName
+      attributes "Implementation-Version": gitBranch
+      attributes "Git-Branch": gitBranch
   }
   mergeServiceFiles {
     include 'META-INF/services/io.vertx.core.spi.VerticleFactory'
   }
 }
 
-task getGit(){
-//  def details = versionDetails()
-//  String name = details.branchName //+ "_" + details.gitHash
-//  println name
-//  System.setProperty("gitBranchName", name)
-}
-
 run() {
-  dependsOn getGit
-  args = ['run', mainVerticleName, "--redeploy=$watchForChange", "--launcher-class=$mainClassName", "--on-redeploy=$doOnChange", "--conf='./conf/config.json'", "-DgitBranchName=${gitBranchName}"]
+  args = ['run', mainVerticleName, "--redeploy=$watchForChange", "--launcher-class=$mainClassName", "--on-redeploy=$doOnChange", "--conf='./conf/config.json'", "-DgitBranch=$gitBranch"]
 }
 
 task wrapper(type: Wrapper) {

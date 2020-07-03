@@ -1,47 +1,40 @@
 package io.vertx.starter
 
 import io.vertx.config.ConfigRetriever
+import io.vertx.config.ConfigRetrieverOptions
+import io.vertx.config.ConfigStoreOptions
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.http.HttpServer
+import io.vertx.core.json.JsonObject
+import io.vertx.redis.RedisOptions
+import io.vertx.redis.impl.RedisConnection
 
-import java.util.jar.Attributes
-import java.util.jar.Manifest
-
+// IMPORTANT! Redis key must be a hash or it will not work!
 class MainVerticle extends AbstractVerticle {
-
-  static final String GIT_BRANCH_NAME = "gitBranchName"
-  static final String DEFAULT_BRANCH_NAME = "master"
-
-  // IMPORTANT! Redis key must be a hash or it will not work!
-  Map store = [
-    type:"redis",
-    config:[
-      host:"localhost",
-      port:6379,
-      key:"${getGitBranchName()}joe.test"
-    ]
-  ]
-
-  Map options = [
-    scanPeriod:2000,
-    stores:[
-      store
-    ]
-  ]
-
   HttpServer httpServer
 
   @Override
   void start() {
+    // TODO we should check if key exists in redis first and if not use 'master'
+    String gitBranchName = getGitBranchName()
+    ConfigStoreOptions redisStore = new ConfigStoreOptions()
+    redisStore.type = "redis"
+    redisStore.setConfig(new JsonObject([
+      host: "localhost",
+      port: 6379,
+      key : "${gitBranchName}.joe.test"
+    ]))
+    ConfigRetrieverOptions options = new ConfigRetrieverOptions().addStore(redisStore)
+    options.scanPeriod = 2000
     ConfigRetriever retriever = ConfigRetriever.create(vertx, options)
     retriever.getConfig({ ar ->
       if (ar.failed()) {
-        println "ERROR: Config not found!"
+        println "ERROR: Config not found! Key \"${gitBranchName}.joe.test\" does not exist!"
       } else {
         def cfg = ar.result()
-        if(cfg){
+        if (cfg) {
           startHttpServer(cfg)
-        }else{
+        } else {
           println "ERROR: Config not found!"
         }
       }
@@ -56,35 +49,35 @@ class MainVerticle extends AbstractVerticle {
     })
   }
 
-  void startHttpServer(cfg){
-    println "VALUE IS: " + System.getProperty("gitBranch")
+  /**
+   * Reads the git branch name from first System properties and then from
+   * MANIFEST.MF can override with -P gitBranch=name
+   * @return
+   */
+  static String getGitBranchName() {
+    if (System.getProperty("gitBranch")) {
+      return System.getProperty("gitBranch")
+    }
 
-    if(httpServer){
+    ClassLoader loader = Thread.currentThread().getContextClassLoader();
+    Enumeration<URL> resources = loader.getResources("META-INF/MANIFEST.MF");
+
+    Properties prop = new Properties()
+    resources.each {
+      prop.load(it.openStream())
+    }
+    return prop.get("Git-Branch")
+  }
+
+  void startHttpServer(cfg) {
+    if (httpServer) {
       println "Stopping http server"
       httpServer.close()
     }
 
     println "Starting http server on port ${cfg.port}"
     httpServer = vertx.createHttpServer()
-        .requestHandler({req -> req.response().end(cfg.welcomeMessage + ", Git: " + System.getProperty("gitBranch").toString())})
-        .listen(cfg.port as Integer)
-  }
-
-  static String getGitBranchName(){
-    if(System.hasProperty(GIT_BRANCH_NAME)){
-      return System.getProperty(GIT_BRANCH_NAME)
-    }
-
-    String className = getClass().getSimpleName() + ".class"
-    String classPath = getClass().getResource(className).toString()
-    if (!classPath.startsWith("jar")) {
-      return DEFAULT_BRANCH_NAME
-    }
-
-    URL url = new URL(classPath)
-    JarURLConnection jarConnection = (JarURLConnection) url.openConnection()
-    Manifest manifest = jarConnection.getManifest()
-    Attributes attributes = manifest.getMainAttributes()
-    return attributes.getValue(GIT_BRANCH_NAME)
+      .requestHandler({ req -> req.response().end(cfg.welcomeMessage + ", Git: " + getGitBranchName()) })
+      .listen(cfg.port as Integer)
   }
 }
